@@ -1,21 +1,30 @@
 package com.ursus_dei.concept_maps.ui;
 
+import com.ursus_dei.concept_maps.controller.MainController;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import com.ursus_dei.concept_maps.controller.MainController;
-
 public class MainWindow extends Application {
+
+    final private Diagram diagram = Diagram.INSTANCE;
+    final private TopMenu topMenu = TopMenu.INSTANCE;
+
+    final public static Line line = new Line(0,0,500,500);
 
     public static void main(String[] args) {
         launch(args);
@@ -27,90 +36,40 @@ public class MainWindow extends Application {
         int width = MainController.windowWidth();
         int height = MainController.windowHeight();
 
-        primaryStage.setTitle(title);
         BorderPane root = new BorderPane();
+
         Scene scene = new Scene(root, width, height);
 
-        scene.addEventFilter(MouseEvent.MOUSE_PRESSED,
-                new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent mouseEvent) {
-                        System.out.println("mouse click detected! " + mouseEvent.getSource());
-                    }
-                });
+        final Text text1 = new Text(50, 50, "(2007) JavaFX based on F3");
+        text1.setFill(Color.CHOCOLATE);
+        text1.setFont(Font.font(java.awt.Font.SERIF, 25));
+        root.getChildren().add(text1);
 
-        scene.addEventFilter(KeyEvent.ANY,
-                new EventHandler<KeyEvent>() {
-                    @Override
-                    public void handle(KeyEvent event) {
-                        System.out.println("key event " + event);
-                    }
-                });
+        root.getChildren().add(line);
 
-        StackPane stackPane = new StackPane();
-        stackPane.getChildren().add(helloButton());
 
-        root.setTop(menuBar());
-        root.setCenter(stackPane);
+
+        primaryStage.setTitle(title);
+//        primaryStage.widthProperty().addListener(
+//                (observable, oldValue, newValue) ->
+//                        diagram.setWidth(newValue.doubleValue()));
+//        primaryStage.heightProperty().addListener(
+//                (observable, oldValue, newValue) ->
+//                        diagram.setHeight(newValue.doubleValue()));
+
+        scene.addEventFilter(MouseEvent.ANY, new MouseHandler());
+        scene.addEventFilter(KeyEvent.ANY, new KeyboardHandler());
+
+        root.setTop(topMenu);
+        //root.setCenter(diagram);
+
 
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        diagram.render();
+
     }
 
-    private Button helloButton() {
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(actionEvent -> {
-                    System.out.println("Hello World!");
-                    MainController.control();
-                }
-        );
-        return btn;
-    }
-
-    private MenuBar menuBar() {
-        MenuBar menuBar = new MenuBar();
-        // File menu - new, save, exit
-        Menu fileMenu = new Menu("File");
-        MenuItem newMenuItem = new MenuItem("New");
-        MenuItem saveMenuItem = new MenuItem("Save");
-        MenuItem exitMenuItem = new MenuItem("Exit");
-        exitMenuItem.setOnAction(actionEvent -> Platform.exit());
-
-        fileMenu.getItems().addAll(newMenuItem, saveMenuItem,
-                new SeparatorMenuItem(), exitMenuItem);
-
-        Menu webMenu = new Menu("Web");
-        CheckMenuItem htmlMenuItem = new CheckMenuItem("HTML");
-        htmlMenuItem.setSelected(true);
-        webMenu.getItems().add(htmlMenuItem);
-
-        CheckMenuItem cssMenuItem = new CheckMenuItem("CSS");
-        cssMenuItem.setSelected(true);
-        webMenu.getItems().add(cssMenuItem);
-
-        Menu sqlMenu = new Menu("SQL");
-        ToggleGroup tGroup = new ToggleGroup();
-        RadioMenuItem mysqlItem = new RadioMenuItem("MySQL");
-        mysqlItem.setToggleGroup(tGroup);
-
-        RadioMenuItem oracleItem = new RadioMenuItem("Oracle");
-        oracleItem.setToggleGroup(tGroup);
-        oracleItem.setSelected(true);
-
-        sqlMenu.getItems().addAll(mysqlItem, oracleItem,
-                new SeparatorMenuItem());
-
-        Menu tutorialManeu = new Menu("Tutorial");
-        tutorialManeu.getItems().addAll(
-                new CheckMenuItem("Java"),
-                new CheckMenuItem("JavaFX"),
-                new CheckMenuItem("Swing"));
-
-        sqlMenu.getItems().add(tutorialManeu);
-
-        menuBar.getMenus().addAll(fileMenu, webMenu, sqlMenu);
-        return menuBar;
-    }
 }
 
